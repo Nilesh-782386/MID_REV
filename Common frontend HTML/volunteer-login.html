@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareConnect - Volunteer Registration</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/Common frontend CSS/volunteer.css">
+</head>
+<body>
+  <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-hands-helping"></i>
+            CareConnect
+        </div>
+        <ul class="nav-links">
+            <li><a href="/Common frontend HTML/index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="/Common frontend HTML/about.html"><i class="fas fa-info-circle"></i> About</a></li>
+            <li><a href="#"><i class="fas fa-donate"></i> Donate</a></li>
+            <li><a href="/Common frontend HTML/volunteer-login.html" class="active"><i class="fas fa-hand-holding-heart"></i> Volunteer</a></li>
+            <li><a href="#"><i class="fas fa-building"></i> NGO</a></li>
+            <li><a href="/Common frontend HTML/profile.html"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="/Common frontend HTML/volunteer-dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="/Common frontend HTML/login.html"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+        </ul>
+        <div class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="form-header">
+      <h1><i class="fas fa-user-plus"></i> Become a Volunteer</h1>
+      <p>Join our community of volunteers making a difference in people's lives. Your time and effort can create a lasting impact.</p>
+    </div>
+    <div class="form-container">
+      <form id="volunteer-login-form">
+        <div class="form-section active" id="login-section-1">
+          <h2><i class="fas fa-sign-in-alt"></i> Login Information</h2>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="login-email"><i class="fas fa-envelope"></i> Email Address</label>
+              <input type="email" id="login-email" name="email" placeholder="Enter your email address" required>
+              <div class="error-message" id="login-email-error"></div>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="login-password"><i class="fas fa-lock"></i> Password</label>
+              <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
+              <div class="error-message" id="login-password-error"></div>
+            </div>
+          </div>
+          
+          <div class="form-navigation">
+            <button type="submit" class="btn btn-submit"><i class="fas fa-sign-in-alt"></i> Login</button>
+          </div>
+        </div>
+      </form>
+  
+  <div class="form-links">
+    <a href="#"><i class="fas fa-question-circle"></i> Forgot Password?</a>
+    <a href="/Common frontend HTML/volunteer-registration.html"><i class="fas fa-user-plus"></i> Create New Account</a>
+  </div>
+</div>
+    
+    <div class="benefits-section">
+      <h2>Volunteer Benefits</h2>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <i class="fas fa-award"></i>
+          <h3>Reward Points</h3>
+          <p>Earn points for every hour volunteered that can be redeemed for rewards.</p>
+        </div>
+        <div class="benefit-card">
+          <i class="fas fa-certificate"></i>
+          <h3>Certification</h3>
+          <p>Receive a certificate of appreciation and record of your volunteer service.</p>
+        </div>
+        <div class="benefit-card">
+          <i class="fas fa-users"></i>
+          <h3>Community</h3>
+          <p>Join a network of like-minded individuals making a difference.</p>
+        </div>
+        <div class="benefit-card">
+          <i class="fas fa-graduation-cap"></i>
+          <h3>Training</h3>
+          <p>Get access to free training sessions and skill development workshops.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2025 CareConnect | All Rights Reserved</p>
+    <div class="social">
+      <a href="#">Instagram</a> | <a href="#">Facebook</a> | <a href="#">LinkedIn</a>
+    </div>
+  </footer>
+
+  <script src="/Common frontend JS/volunteer.js"></script>
+</body>
+</html>
