@@ -23,7 +23,10 @@ function checkAuthentication() {
     console.log('User authenticated:', currentUser.name);
     return true;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> b38bb18 (UPDATED)
 function initializeDashboard() {
     console.log('Initializing dashboard...');
     

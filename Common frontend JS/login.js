@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // login.js - Fixed Login functionality
+=======
+// login.js - Complete Enhanced Login functionality with improved user type handling
+>>>>>>> b38bb18 (UPDATED)
 
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
@@ -19,7 +23,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
     if (currentUser) {
         console.log('User already logged in, redirecting to dashboard');
+<<<<<<< HEAD
         window.location.href = '/Common frontend HTML/dashboard.html';
+=======
+        redirectToCorrectDashboard(currentUser.userType);
+>>>>>>> b38bb18 (UPDATED)
         return;
     }
 
@@ -127,7 +135,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Login successful
                 console.log('Login successful for user:', user.name);
                 setLoadingState(false);
+<<<<<<< HEAD
                 showSuccess('Login successful! Redirecting to dashboard...');
+=======
+                
+                // Determine user type for display and routing
+                let userType = determineUserType(user);
+                let userTypeDisplay = getUserTypeDisplay(userType);
+                
+                showSuccess(`Welcome back, ${userTypeDisplay}! Redirecting to dashboard...`);
+>>>>>>> b38bb18 (UPDATED)
                 
                 // Update last login time
                 user.last_login = new Date().toISOString();
@@ -137,6 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 users[userIndex] = user;
                 localStorage.setItem('registeredUsers', JSON.stringify(users));
                 
+<<<<<<< HEAD
                 // Store current user session
                 const userSession = {
                     user_id: user.user_id,
@@ -150,14 +168,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 localStorage.setItem('currentUser', JSON.stringify(userSession));
                 console.log('User session created:', userSession);
+=======
+                // Store current user session with enhanced data
+                const userSession = createUserSession(user, userType);
+                localStorage.setItem('currentUser', JSON.stringify(userSession));
+                
+                console.log('User session created:', { ...userSession, password: undefined });
+>>>>>>> b38bb18 (UPDATED)
                 
                 // Clear form
                 loginForm.reset();
                 
+<<<<<<< HEAD
                 // Redirect to dashboard after 1.5 seconds
                 setTimeout(() => {
                     console.log('Redirecting to dashboard...');
                     window.location.href = '/Common frontend HTML/dashboard.html';
+=======
+                // Redirect to appropriate dashboard after 1.5 seconds
+                setTimeout(() => {
+                    console.log('Redirecting to dashboard...');
+                    redirectToCorrectDashboard(userType);
+>>>>>>> b38bb18 (UPDATED)
                 }, 1500);
                 
             } catch (error) {
@@ -168,10 +200,82 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500); // Small delay to show loading state
     }
 
+<<<<<<< HEAD
     function showError(message) {
         console.log('Showing error:', message);
         messageDiv.className = 'message error';
         messageDiv.innerHTML = message;
+=======
+    // Determine user type based on user data
+    function determineUserType(user) {
+        // Priority 1: Check explicit userType field
+        if (user.userType) {
+            return user.userType;
+        }
+        // Priority 2: Check flags
+        else if (user.is_ngo === true) {
+            return 'ngo';
+        }
+        else if (user.is_volunteer === true) {
+            return 'volunteer';
+        }
+        // Priority 3: Default to donor
+        else {
+            return 'donor';
+        }
+    }
+
+    // Get user type display label
+    function getUserTypeDisplay(userType) {
+        const labels = {
+            donor: 'Donor',
+            volunteer: 'Volunteer',
+            ngo: 'NGO'
+        };
+        return labels[userType] || 'User';
+    }
+
+    // Create user session object
+    function createUserSession(user, userType) {
+        const session = {
+            user_id: user.user_id,
+            name: user.name,
+            email: user.email,
+            mobile: user.mobile,
+            address: user.address,
+            userType: userType,
+            is_volunteer: user.is_volunteer || false,
+            is_ngo: user.is_ngo || false,
+            loginTime: new Date().toISOString()
+        };
+
+        // Add type-specific data to session
+        if (user.skills) session.skills = user.skills;
+        if (user.availability) session.availability = user.availability;
+        if (user.registration_number) session.registration_number = user.registration_number;
+        if (user.focus_areas) session.focus_areas = user.focus_areas;
+        if (user.organization_name) session.organization_name = user.organization_name;
+        
+        return session;
+    }
+
+    // Redirect to correct dashboard based on user type
+    function redirectToCorrectDashboard(userType) {
+        const dashboardUrls = {
+            donor: '/Common frontend HTML/donor-dashboard.html',
+            volunteer: '/Common frontend HTML/volunteer-dashboard.html',
+            ngo: '/Common frontend HTML/ngo-dashboard.html'
+        };
+        
+        const redirectUrl = dashboardUrls[userType] || dashboardUrls.donor;
+        window.location.href = redirectUrl;
+    }
+
+    function showError(message) {
+        console.log('Showing error:', message);
+        messageDiv.className = 'message error';
+        messageDiv.innerHTML = `<i class="error-icon">⚠️</i> ${message}`;
+>>>>>>> b38bb18 (UPDATED)
         messageDiv.classList.remove('hidden');
         messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
         
@@ -186,7 +290,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function showSuccess(message) {
         console.log('Showing success:', message);
         messageDiv.className = 'message success';
+<<<<<<< HEAD
         messageDiv.innerHTML = message;
+=======
+        messageDiv.innerHTML = `<i class="success-icon">✅</i> ${message}`;
+>>>>>>> b38bb18 (UPDATED)
         messageDiv.classList.remove('hidden');
         messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -315,9 +423,125 @@ document.addEventListener('DOMContentLoaded', function() {
     // Debugging: Check localStorage data
     console.log('Registered users in localStorage:', JSON.parse(localStorage.getItem('registeredUsers') || '[]'));
     console.log('Current user in localStorage:', JSON.parse(localStorage.getItem('currentUser') || 'null'));
+<<<<<<< HEAD
 });
 
 // Utility functions
+=======
+
+    // Add keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            // Allow normal tab navigation
+            return;
+        }
+        
+        if (e.key === 'Escape') {
+            // Clear form on escape
+            if (confirm('Clear login form?')) {
+                loginForm.reset();
+                if (messageDiv) {
+                    messageDiv.className = 'hidden';
+                }
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }
+        }
+    });
+
+    // Handle paste events for mobile number
+    if (mobileInput) {
+        mobileInput.addEventListener('paste', function(e) {
+            setTimeout(() => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 10) {
+                    value = value.slice(0, 10);
+                }
+                e.target.value = value;
+                validateInputField(e.target);
+            }, 0);
+        });
+    }
+
+    // Add form validation styling
+    const style = document.createElement('style');
+    style.textContent = `
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+        
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+            border-color: #ffffff transparent #ffffff transparent;
+            animation: btn-loading 1.2s linear infinite;
+        }
+        
+        @keyframes btn-loading {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .message {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin: 16px 0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .message.error {
+            background-color: #fee;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+        
+        .message.success {
+            background-color: #f0fff4;
+            color: #2f855a;
+            border: 1px solid #9ae6b4;
+        }
+        
+        .message.hidden {
+            display: none;
+        }
+        
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        input.invalid {
+            animation: shake 0.3s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    `;
+    document.head.appendChild(style);
+});
+
+// Enhanced utility functions
+>>>>>>> b38bb18 (UPDATED)
 function isLoggedIn() {
     return localStorage.getItem('currentUser') !== null;
 }
@@ -326,9 +550,25 @@ function getCurrentUser() {
     return JSON.parse(localStorage.getItem('currentUser') || 'null');
 }
 
+<<<<<<< HEAD
 function logoutUser() {
     console.log('Logging out user...');
     localStorage.removeItem('currentUser');
+=======
+function getCurrentUserType() {
+    const user = getCurrentUser();
+    if (!user) return null;
+    return user.userType || (user.is_volunteer ? 'volunteer' : (user.is_ngo ? 'ngo' : 'donor'));
+}
+
+function logoutUser() {
+    console.log('Logging out user...');
+    localStorage.removeItem('currentUser');
+    
+    // Clear any session storage as well
+    sessionStorage.clear();
+    
+>>>>>>> b38bb18 (UPDATED)
     console.log('User logged out, redirecting to login...');
     window.location.href = '/Common frontend HTML/login.html';
 }
@@ -339,18 +579,114 @@ function checkAuthentication() {
         window.location.href = '/Common frontend HTML/login.html';
         return false;
     }
+<<<<<<< HEAD
+=======
+    
+    // Check if session is expired (24 hours)
+    const currentUser = getCurrentUser();
+    if (currentUser && currentUser.loginTime) {
+        const loginTime = new Date(currentUser.loginTime);
+        const now = new Date();
+        const hoursSinceLogin = (now - loginTime) / (1000 * 60 * 60);
+        
+        if (hoursSinceLogin > 24) {
+            console.log('Session expired, logging out');
+            logoutUser();
+            return false;
+        }
+    }
+    
+>>>>>>> b38bb18 (UPDATED)
     return true;
 }
 
 // Global logout function that can be called from anywhere
 function logout() {
+<<<<<<< HEAD
     logoutUser();
+=======
+    if (confirm('Are you sure you want to logout?')) {
+        logoutUser();
+    }
+}
+
+// Function to redirect to appropriate dashboard
+function redirectToDashboard() {
+    const userType = getCurrentUserType();
+    const dashboardUrls = {
+        donor: '/Common frontend HTML/donor-dashboard.html',
+        volunteer: '/Common frontend HTML/volunteer-dashboard.html',
+        ngo: '/Common frontend HTML/ngo-dashboard.html'
+    };
+    
+    const redirectUrl = dashboardUrls[userType] || dashboardUrls.donor;
+    window.location.href = redirectUrl;
+}
+
+// Function to get user display info
+function getUserDisplayInfo() {
+    const user = getCurrentUser();
+    if (!user) return null;
+    
+    return {
+        name: user.name,
+        email: user.email,
+        userType: user.userType,
+        displayType: getUserTypeDisplay(user.userType)
+    };
+}
+
+function getUserTypeDisplay(userType) {
+    const labels = {
+        donor: 'Donor',
+        volunteer: 'Volunteer',
+        ngo: 'NGO'
+    };
+    return labels[userType] || 'User';
+>>>>>>> b38bb18 (UPDATED)
 }
 
 // Debug function to check localStorage
 function debugStorage() {
+<<<<<<< HEAD
     console.log('=== DEBUGGING STORAGE ===');
     console.log('Registered Users:', localStorage.getItem('registeredUsers'));
     console.log('Current User:', localStorage.getItem('currentUser'));
     console.log('All localStorage keys:', Object.keys(localStorage));
 }
+=======
+    console.log('=== DEBUGGING LOGIN STORAGE ===');
+    console.log('Registered Users:', localStorage.getItem('registeredUsers'));
+    console.log('Current User:', localStorage.getItem('currentUser'));
+    console.log('All localStorage keys:', Object.keys(localStorage));
+    console.log('Session Storage:', Object.keys(sessionStorage));
+    
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+        console.log('Current User Type:', getCurrentUserType());
+        console.log('User Display Info:', getUserDisplayInfo());
+    }
+    console.log('================================');
+}
+
+// Function to clear all app data (for development/testing)
+function clearAllData() {
+    if (confirm('This will clear all app data including registered users. Are you sure?')) {
+        localStorage.clear();
+        sessionStorage.clear();
+        console.log('All app data cleared');
+        window.location.reload();
+    }
+}
+
+// Make functions globally available
+window.isLoggedIn = isLoggedIn;
+window.getCurrentUser = getCurrentUser;
+window.getCurrentUserType = getCurrentUserType;
+window.logout = logout;
+window.debugStorage = debugStorage;
+window.clearAllData = clearAllData;
+window.redirectToDashboard = redirectToDashboard;
+window.getUserDisplayInfo = getUserDisplayInfo;
+window.checkAuthentication = checkAuthentication;
+>>>>>>> b38bb18 (UPDATED)

@@ -3,13 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
     <title>CareConnect - Volunteer Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/Common frontend CSS/volunteer-dashboard.css">
+=======
+    <title>Volunteer Dashboard - CareConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/Common frontend CSS/dashboard.css">
+>>>>>>> b38bb18 (UPDATED)
 </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar">
+<<<<<<< HEAD
         <div class="logo">
             <i class="fas fa-hands-helping"></i>
             CareConnect
@@ -26,10 +33,30 @@
         </ul>
         <div class="menu-toggle">
             <i class="fas fa-bars"></i>
+=======
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-hands-helping"></i>
+                CareConnect
+            </div>
+            <div class="nav-links">
+                <a href="/Common frontend HTML/index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="/Common frontend HTML/about.html"><i class="fas fa-info-circle"></i> About</a>
+                <a href="#"><i class="fas fa-donate"></i> Donate</a>
+                <a href="/Common frontend HTML/volunteer-login.html"><i class="fas fa-hand-holding-heart"></i> Volunteer</a>
+                <a href="#"><i class="fas fa-building"></i> NGO</a>
+                <a href="/Common frontend HTML/volunteer-dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <button class="btn btn-outline" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+>>>>>>> b38bb18 (UPDATED)
         </div>
     </nav>
 
     <!-- Main Content -->
+<<<<<<< HEAD
     <div class="main-content">
         <div class="dashboard-header">
             <h1><i class="fas fa-tachometer-alt"></i> Volunteer Dashboard</h1>
@@ -44,3 +71,362 @@
     <script src="/Common frontend JS/volunteer-dashboard.js"></script>
 </body>
 </html>
+=======
+    <main class="main-content">
+        <div class="container">
+            <!-- Welcome Message -->
+            <div id="message" class="message hidden"></div>
+            
+            <!-- Profile Header -->
+            <section class="profile-header">
+                <div class="profile-avatar">
+                    <div class="avatar-placeholder" id="avatar-placeholder">V</div>
+                </div>
+                <div class="profile-info">
+                    <h1 id="user-name">Loading...</h1>
+                    <span class="role-badge volunteer" id="user-role">Volunteer</span>
+                    <p class="welcome-text">Welcome to your Volunteer Dashboard!</p>
+                </div>
+            </section>
+
+            <!-- Volunteer Statistics -->
+            <section class="volunteer-stats">
+                <h2><i class="fas fa-chart-line"></i> Your Volunteer Impact</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-details">
+                            <h3 id="hours-volunteered">0</h3>
+                            <label>Hours Volunteered</label>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div class="stat-details">
+                            <h3 id="events-participated">0</h3>
+                            <label>Events Participated</label>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-details">
+                            <h3 id="people-helped">0</h3>
+                            <label>People Helped</label>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-star"></i></div>
+                        <div class="stat-details">
+                            <h3 id="volunteer-rating">5.0</h3>
+                            <label>Rating</label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Volunteer Information -->
+            <section class="volunteer-info">
+                <h2><i class="fas fa-user-circle"></i> Your Volunteer Profile</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                        <div class="info-details">
+                            <label>Email Address</label>
+                            <span id="user-email">Loading...</span>
+                        </div>
+                    </div>  
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-phone"></i></div>
+                        <div class="info-details">
+                            <label>Mobile Number</label>
+                            <span id="user-mobile">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="info-details">
+                            <label>Address</label>
+                            <span id="user-address">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-calendar"></i></div>
+                        <div class="info-details">
+                            <label>Member Since</label>
+                            <span id="member-since">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-tools"></i></div>
+                        <div class="info-details">
+                            <label>Skills</label>
+                            <span id="volunteer-skills">Not specified</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-clock"></i></div>
+                        <div class="info-details">
+                            <label>Availability</label>
+                            <span id="volunteer-availability">Not specified</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-map-pin"></i></div>
+                        <div class="info-details">
+                            <label>Specialization</label>
+                            <span id="volunteer-specialization">Not specified</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <div class="info-details">
+                            <label>Experience Level</label>
+                            <span id="volunteer-experience">Not specified</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-hourglass-half"></i></div>
+                        <div class="info-details">
+                            <label>Time Commitment</label>
+                            <span id="volunteer-commitment">Not specified</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-location-arrow"></i></div>
+                        <div class="info-details">
+                            <label>Preferred Location</label>
+                            <span id="preferred-location">Not specified</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-car"></i></div>
+                        <div class="info-details">
+                            <label>Transportation</label>
+                            <span id="volunteer-transportation">Not specified</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="info-details">
+                            <label>Status</label>
+                            <span id="volunteer-status" class="status-active">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Edit Profile Section -->
+            <section class="edit-profile">
+                <h2><i class="fas fa-edit"></i> Edit Profile</h2>
+                <form id="profileForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="edit-name">Full Name *</label>
+                            <input type="text" id="edit-name" name="name" placeholder="Enter your full name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="edit-email">Email Address *</label>
+                            <input type="email" id="edit-email" name="email" placeholder="Enter your email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="edit-mobile">Mobile Number</label>
+                            <input type="tel" id="edit-mobile" name="mobile" placeholder="Mobile number" maxlength="10" readonly>
+                            <small style="color: #666; font-size: 0.8rem;">Mobile number cannot be changed</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="edit-availability">Availability</label>
+                            <select id="edit-availability" name="availability">
+                                <option value="">Select availability</option>
+                                <option value="weekdays">Weekdays</option>
+                                <option value="weekends">Weekends</option>
+                                <option value="both">Both weekdays and weekends</option>
+                                <option value="flexible">Flexible</option>
+                                <option value="emergency">Emergency Only</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="edit-location">Preferred Location</label>
+                            <input type="text" id="edit-location" name="preferred_location" placeholder="e.g., Mumbai, Pune, etc.">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-specialization">Specialization</label>
+                            <select id="edit-specialization" name="specialization">
+                                <option value="">Choose your primary area</option>
+                                <option value="healthcare">Healthcare & Medical Support</option>
+                                <option value="education">Education & Tutoring</option>
+                                <option value="elderly_care">Elderly Care & Assistance</option>
+                                <option value="child_care">Child Care & Development</option>
+                                <option value="disaster_relief">Disaster Relief & Emergency Response</option>
+                                <option value="environmental">Environmental & Conservation</option>
+                                <option value="food_distribution">Food Distribution & Nutrition</option>
+                                <option value="transport">Transportation & Logistics</option>
+                                <option value="technology">Technology & Digital Literacy</option>
+                                <option value="fundraising">Fundraising & Event Management</option>
+                                <option value="counseling">Counseling & Mental Health Support</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="edit-address">Address *</label>
+                            <textarea id="edit-address" name="address" placeholder="Enter your complete address" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="edit-skills">Skills & Expertise</label>
+                            <textarea id="edit-skills" name="skills" placeholder="Describe your skills and expertise" rows="3"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Available Opportunities -->
+            <section class="opportunities">
+                <h2><i class="fas fa-handshake"></i> Available Volunteer Opportunities</h2>
+                <div id="opportunities-list" class="opportunities-list">
+                    <div class="loading">Loading volunteer opportunities...</div>
+                </div>
+            </section>
+
+            <!-- Volunteer Activity Log -->
+            <section class="activity-log">
+                <h2><i class="fas fa-history"></i> Recent Activities</h2>
+                <div id="activity-list" class="activity-list">
+                    <div class="no-activities">
+                        <p>No activities recorded yet. Start volunteering to see your impact!</p>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addActivityRecord()">
+                    <i class="fas fa-plus"></i> Add Activity Record
+                </button>
+            </section>
+
+            <!-- Add Activity Form -->
+            <section id="add-activity-section" class="edit-profile hidden">
+                <h2><i class="fas fa-plus-circle"></i> Add Activity Record</h2>
+                <form id="activityForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="activity-type">Activity Type *</label>
+                            <select id="activity-type" name="activity_type" required>
+                                <option value="">Select activity type</option>
+                                <option value="blood_drive">Blood Drive</option>
+                                <option value="food_distribution">Food Distribution</option>
+                                <option value="medical_assistance">Medical Assistance</option>
+                                <option value="disaster_relief">Disaster Relief</option>
+                                <option value="education">Education Support</option>
+                                <option value="community_service">Community Service</option>
+                                <option value="elderly_care">Elderly Care</option>
+                                <option value="environmental">Environmental Work</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="activity-date">Activity Date *</label>
+                            <input type="date" id="activity-date" name="activity_date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="hours-worked">Hours Worked *</label>
+                            <input type="number" id="hours-worked" name="hours_worked" min="0.5" max="24" step="0.5" placeholder="e.g., 4.5" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="people-helped-input">People Helped</label>
+                            <input type="number" id="people-helped-input" name="people_helped" min="0" placeholder="e.g., 25">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="organization-name">Organization/NGO</label>
+                            <input type="text" id="organization-name" name="organization" placeholder="Name of organization">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="activity-location">Location</label>
+                            <input type="text" id="activity-location" name="location" placeholder="Activity location">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="activity-description">Description</label>
+                            <textarea id="activity-description" name="description" placeholder="Describe the volunteer activity" rows="3"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="cancelActivity()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Activity</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="extra-options">
+                <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+                <div class="options-grid">
+                    <div class="option-card">
+                        <div class="option-icon"><i class="fas fa-search"></i></div>
+                        <div class="option-content">
+                            <h3>Find Opportunities</h3>
+                            <p>Browse and apply for volunteer opportunities in your area.</p>
+                            <button class="btn btn-outline">Browse Opportunities</button>
+                        </div>
+                    </div>
+                    
+                    <div class="option-card">
+                        <div class="option-icon"><i class="fas fa-tint"></i></div>
+                        <div class="option-content">
+                            <h3>Blood Drive Events</h3>
+                            <p>Join upcoming blood donation drives as a volunteer.</p>
+                            <button class="btn btn-outline">View Blood Drives</button>
+                        </div>
+                    </div>
+                    
+                    <div class="option-card">
+                        <div class="option-icon"><i class="fas fa-heartbeat"></i></div>
+                        <div class="option-content">
+                            <h3>Medical Assistance</h3>
+                            <p>Provide medical assistance and first aid support.</p>
+                            <button class="btn btn-outline">Medical Opportunities</button>
+                        </div>
+                    </div>
+                    
+                    <div class="option-card">
+                        <div class="option-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="option-content">
+                            <h3>Emergency Response</h3>
+                            <p>Join emergency response teams for disaster relief.</p>
+                            <button class="btn btn-outline">Emergency Teams</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 CareConnect. All rights reserved.</p>
+            <div class="social">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/Common frontend JS/volunteer-dashboard.js"></script>
+</body>
+</html>
+>>>>>>> b38bb18 (UPDATED)
