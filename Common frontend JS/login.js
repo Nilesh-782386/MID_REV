@@ -1,10 +1,8 @@
-<<<<<<< HEAD
-// login.js - Fixed Login functionality
-=======
-// login.js - Complete Enhanced Login functionality with improved user type handling
->>>>>>> b38bb18 (UPDATED)
+// login.js - Fixed and Enhanced Login functionality
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Login page initializing...');
+    
     const loginForm = document.getElementById('loginForm');
     const messageDiv = document.getElementById('message');
 
@@ -23,11 +21,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
     if (currentUser) {
         console.log('User already logged in, redirecting to dashboard');
-<<<<<<< HEAD
-        window.location.href = '/Common frontend HTML/dashboard.html';
-=======
-        redirectToCorrectDashboard(currentUser.userType);
->>>>>>> b38bb18 (UPDATED)
+        const userType = determineUserType(currentUser);
+        redirectToCorrectDashboard(userType);
         return;
     }
 
@@ -65,8 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Validating login inputs');
         
         // Clear previous messages
-        messageDiv.className = 'hidden';
-        messageDiv.innerHTML = '';
+        clearMessages();
 
         // Validate mobile number
         const mobileRegex = /^[6-9]\d{9}$/;
@@ -134,17 +128,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Login successful
                 console.log('Login successful for user:', user.name);
-                setLoadingState(false);
-<<<<<<< HEAD
-                showSuccess('Login successful! Redirecting to dashboard...');
-=======
                 
                 // Determine user type for display and routing
-                let userType = determineUserType(user);
-                let userTypeDisplay = getUserTypeDisplay(userType);
+                const userType = determineUserType(user);
+                const userTypeDisplay = getUserTypeDisplay(userType);
                 
+                setLoadingState(false);
                 showSuccess(`Welcome back, ${userTypeDisplay}! Redirecting to dashboard...`);
->>>>>>> b38bb18 (UPDATED)
                 
                 // Update last login time
                 user.last_login = new Date().toISOString();
@@ -154,69 +144,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 users[userIndex] = user;
                 localStorage.setItem('registeredUsers', JSON.stringify(users));
                 
-<<<<<<< HEAD
-                // Store current user session
-                const userSession = {
-                    user_id: user.user_id,
-                    name: user.name,
-                    email: user.email,
-                    mobile: user.mobile,
-                    address: user.address,
-                    is_volunteer: user.is_volunteer || false,
-                    login_time: new Date().toISOString()
-                };
-                
-                localStorage.setItem('currentUser', JSON.stringify(userSession));
-                console.log('User session created:', userSession);
-=======
                 // Store current user session with enhanced data
                 const userSession = createUserSession(user, userType);
                 localStorage.setItem('currentUser', JSON.stringify(userSession));
                 
                 console.log('User session created:', { ...userSession, password: undefined });
->>>>>>> b38bb18 (UPDATED)
                 
                 // Clear form
                 loginForm.reset();
                 
-<<<<<<< HEAD
-                // Redirect to dashboard after 1.5 seconds
-                setTimeout(() => {
-                    console.log('Redirecting to dashboard...');
-                    window.location.href = '/Common frontend HTML/dashboard.html';
-=======
-                // Redirect to appropriate dashboard after 1.5 seconds
+                // Redirect to appropriate dashboard after 2 seconds
                 setTimeout(() => {
                     console.log('Redirecting to dashboard...');
                     redirectToCorrectDashboard(userType);
->>>>>>> b38bb18 (UPDATED)
-                }, 1500);
+                }, 2000);
                 
             } catch (error) {
                 console.error('Login error:', error);
                 setLoadingState(false);
                 showError('Login failed. Please try again.');
             }
-        }, 500); // Small delay to show loading state
+        }, 800); // Slightly longer delay to show loading state
     }
 
-<<<<<<< HEAD
-    function showError(message) {
-        console.log('Showing error:', message);
-        messageDiv.className = 'message error';
-        messageDiv.innerHTML = message;
-=======
     // Determine user type based on user data
     function determineUserType(user) {
+        console.log('Determining user type for:', user.name);
+        
         // Priority 1: Check explicit userType field
-        if (user.userType) {
+        if (user.userType && ['donor', 'volunteer', 'ngo'].includes(user.userType)) {
             return user.userType;
         }
         // Priority 2: Check flags
-        else if (user.is_ngo === true) {
+        else if (user.is_ngo === true || user.registration_number) {
             return 'ngo';
         }
-        else if (user.is_volunteer === true) {
+        else if (user.is_volunteer === true || user.volunteer_data || user.skills) {
             return 'volunteer';
         }
         // Priority 3: Default to donor
@@ -235,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return labels[userType] || 'User';
     }
 
-    // Create user session object
+    // Create comprehensive user session object
     function createUserSession(user, userType) {
         const session = {
             user_id: user.user_id,
@@ -246,7 +209,8 @@ document.addEventListener('DOMContentLoaded', function() {
             userType: userType,
             is_volunteer: user.is_volunteer || false,
             is_ngo: user.is_ngo || false,
-            loginTime: new Date().toISOString()
+            loginTime: new Date().toISOString(),
+            sessionId: generateSessionId()
         };
 
         // Add type-specific data to session
@@ -259,56 +223,74 @@ document.addEventListener('DOMContentLoaded', function() {
         return session;
     }
 
+    // Generate unique session ID
+    function generateSessionId() {
+        return 'SESSION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
     // Redirect to correct dashboard based on user type
     function redirectToCorrectDashboard(userType) {
+        console.log('Redirecting to dashboard for user type:', userType);
+        
         const dashboardUrls = {
-            donor: '/Common frontend HTML/donor-dashboard.html',
+            donor: '/Common frontend HTML/dashboard.html', // Using generic dashboard for donors
             volunteer: '/Common frontend HTML/volunteer-dashboard.html',
             ngo: '/Common frontend HTML/ngo-dashboard.html'
         };
         
         const redirectUrl = dashboardUrls[userType] || dashboardUrls.donor;
+        console.log('Redirect URL:', redirectUrl);
         window.location.href = redirectUrl;
+    }
+
+    function clearMessages() {
+        if (messageDiv) {
+            messageDiv.className = 'hidden';
+            messageDiv.innerHTML = '';
+        }
     }
 
     function showError(message) {
         console.log('Showing error:', message);
-        messageDiv.className = 'message error';
-        messageDiv.innerHTML = `<i class="error-icon">⚠️</i> ${message}`;
->>>>>>> b38bb18 (UPDATED)
-        messageDiv.classList.remove('hidden');
-        messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // Auto-hide error after 5 seconds
-        setTimeout(() => {
-            if (messageDiv.classList.contains('error')) {
-                messageDiv.className = 'hidden';
-            }
-        }, 5000);
+        if (messageDiv) {
+            messageDiv.className = 'message error';
+            messageDiv.innerHTML = `<i class="error-icon">⚠️</i> ${message}`;
+            messageDiv.classList.remove('hidden');
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Auto-hide error after 6 seconds
+            setTimeout(() => {
+                if (messageDiv.className.includes('error')) {
+                    messageDiv.className = 'hidden';
+                }
+            }, 6000);
+        }
     }
 
     function showSuccess(message) {
         console.log('Showing success:', message);
-        messageDiv.className = 'message success';
-<<<<<<< HEAD
-        messageDiv.innerHTML = message;
-=======
-        messageDiv.innerHTML = `<i class="success-icon">✅</i> ${message}`;
->>>>>>> b38bb18 (UPDATED)
-        messageDiv.classList.remove('hidden');
-        messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (messageDiv) {
+            messageDiv.className = 'message success';
+            messageDiv.innerHTML = `<i class="success-icon">✅</i> ${message}`;
+            messageDiv.classList.remove('hidden');
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
     }
 
     function focusField(fieldName) {
         const field = document.getElementById(fieldName);
         if (field) {
-            field.focus();
-            field.style.borderColor = '#ff6b6b';
-            
-            // Reset border color after focus
             setTimeout(() => {
-                field.style.borderColor = '#e1e5e9';
-            }, 3000);
+                field.focus();
+                field.style.borderColor = '#ff6b6b';
+                field.style.backgroundColor = '#ffebee';
+                
+                // Reset border color after focus
+                setTimeout(() => {
+                    field.style.borderColor = '';
+                    field.style.backgroundColor = '';
+                }, 3000);
+            }, 100);
         }
     }
 
@@ -318,15 +300,16 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Submit button not found');
             return;
         }
+        
         if (loading) {
             submitButton.disabled = true;
             submitButton.classList.add('btn-loading');
-            submitButton.textContent = 'Logging in...';
+            submitButton.innerHTML = '<span class="loading-spinner"></span> Logging in...';
             console.log('Loading state: ON');
         } else {
             submitButton.disabled = false;
             submitButton.classList.remove('btn-loading');
-            submitButton.textContent = 'Login';
+            submitButton.innerHTML = 'Login';
             console.log('Loading state: OFF');
         }
     }
@@ -344,6 +327,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             e.target.value = value;
+            
+            // Real-time validation feedback
+            if (value.length > 0) {
+                const mobileRegex = /^[6-9]\d{9}$/;
+                if (value.length === 10 && mobileRegex.test(value)) {
+                    e.target.style.borderColor = '#28a745';
+                    e.target.style.backgroundColor = '#f8fff8';
+                } else if (value.length === 10) {
+                    e.target.style.borderColor = '#ff6b6b';
+                    e.target.style.backgroundColor = '#ffebee';
+                } else {
+                    e.target.style.borderColor = '';
+                    e.target.style.backgroundColor = '';
+                }
+            }
         });
 
         // Prevent non-numeric input
@@ -352,6 +350,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!/[0-9]/.test(char)) {
                 e.preventDefault();
             }
+        });
+
+        // Handle paste events
+        mobileInput.addEventListener('paste', function(e) {
+            setTimeout(() => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 10) {
+                    value = value.slice(0, 10);
+                }
+                e.target.value = value;
+            }, 0);
         });
     }
 
@@ -364,107 +373,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 loginForm.dispatchEvent(new Event('submit'));
             }
         });
-    }
 
-    // Add visual feedback for form validation
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-        input.addEventListener('blur', function() {
-            validateInputField(this);
-        });
-
-        input.addEventListener('input', function() {
-            // Remove error styling on input
-            this.style.borderColor = '#e1e5e9';
-            this.style.backgroundColor = '#fafbfc';
-        });
-
-        input.addEventListener('focus', function() {
-            this.style.borderColor = '#667eea';
-            this.style.backgroundColor = 'white';
-        });
-    });
-
-    function validateInputField(input) {
-        const value = input.value.trim();
-        let isValid = true;
-        
-        if (input.name === 'mobile' || input.id === 'mobile') {
-            const mobileRegex = /^[6-9]\d{9}$/;
-            if (value && !mobileRegex.test(value)) {
-                input.style.borderColor = '#ff6b6b';
-                input.style.backgroundColor = '#ffebee';
-                isValid = false;
+        // Real-time password validation feedback
+        passwordInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            if (value.length >= 6) {
+                e.target.style.borderColor = '#28a745';
+                e.target.style.backgroundColor = '#f8fff8';
+            } else if (value.length > 0) {
+                e.target.style.borderColor = '#ffc107';
+                e.target.style.backgroundColor = '#fffbf0';
+            } else {
+                e.target.style.borderColor = '';
+                e.target.style.backgroundColor = '';
             }
-        }
-
-        if (input.name === 'password' || input.id === 'password') {
-            if (value && value.length < 6) {
-                input.style.borderColor = '#ff6b6b';
-                input.style.backgroundColor = '#ffebee';
-                isValid = false;
-            }
-        }
-      
-        if (value && isValid) {
-            input.style.borderColor = '#4ecdc4';
-            input.style.backgroundColor = '#f0ffff';
-        }
-        
-        return isValid;
+        });
     }
 
-    // Auto-focus first input field
-    const firstInput = loginForm.querySelector('input');
-    if (firstInput) {
-        firstInput.focus();
-    }
-
-    // Debugging: Check localStorage data
-    console.log('Registered users in localStorage:', JSON.parse(localStorage.getItem('registeredUsers') || '[]'));
-    console.log('Current user in localStorage:', JSON.parse(localStorage.getItem('currentUser') || 'null'));
-<<<<<<< HEAD
-});
-
-// Utility functions
-=======
-
-    // Add keyboard navigation
+    // Enhanced keyboard navigation
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Tab') {
-            // Allow normal tab navigation
-            return;
-        }
-        
         if (e.key === 'Escape') {
-            // Clear form on escape
+            // Clear form and messages on escape
             if (confirm('Clear login form?')) {
                 loginForm.reset();
-                if (messageDiv) {
-                    messageDiv.className = 'hidden';
-                }
-                if (firstInput) {
-                    firstInput.focus();
+                clearMessages();
+                if (mobileInput) {
+                    mobileInput.focus();
                 }
             }
         }
     });
 
-    // Handle paste events for mobile number
+    // Auto-focus first input field
     if (mobileInput) {
-        mobileInput.addEventListener('paste', function(e) {
-            setTimeout(() => {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length > 10) {
-                    value = value.slice(0, 10);
-                }
-                e.target.value = value;
-                validateInputField(e.target);
-            }, 0);
-        });
+        mobileInput.focus();
     }
 
-    // Add form validation styling
+    // Add loading styles
     const style = document.createElement('style');
     style.textContent = `
         .btn-loading {
@@ -472,28 +417,18 @@ document.addEventListener('DOMContentLoaded', function() {
             color: transparent !important;
         }
         
-        .btn-loading::after {
-            content: '';
-            position: absolute;
+        .loading-spinner {
+            display: inline-block;
             width: 16px;
             height: 16px;
-            top: 50%;
-            left: 50%;
-            margin-left: -8px;
-            margin-top: -8px;
-            border-radius: 50%;
             border: 2px solid #ffffff;
-            border-color: #ffffff transparent #ffffff transparent;
-            animation: btn-loading 1.2s linear infinite;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
         }
         
-        @keyframes btn-loading {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         .message {
@@ -504,6 +439,18 @@ document.addEventListener('DOMContentLoaded', function() {
             display: flex;
             align-items: center;
             gap: 8px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .message.error {
@@ -526,35 +473,31 @@ document.addEventListener('DOMContentLoaded', function() {
             outline: none;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        
-        input.invalid {
-            animation: shake 0.3s ease-in-out;
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
     `;
     document.head.appendChild(style);
+
+    // Debugging: Check localStorage data
+    console.log('=== LOGIN DEBUG INFO ===');
+    console.log('Registered users count:', JSON.parse(localStorage.getItem('registeredUsers') || '[]').length);
+    console.log('Current user:', JSON.parse(localStorage.getItem('currentUser') || 'null'));
+    console.log('========================');
 });
 
-// Enhanced utility functions
->>>>>>> b38bb18 (UPDATED)
+// Enhanced utility functions for global access
 function isLoggedIn() {
-    return localStorage.getItem('currentUser') !== null;
+    const currentUser = localStorage.getItem('currentUser');
+    return currentUser !== null && currentUser !== 'null';
 }
 
 function getCurrentUser() {
-    return JSON.parse(localStorage.getItem('currentUser') || 'null');
+    try {
+        return JSON.parse(localStorage.getItem('currentUser') || 'null');
+    } catch (error) {
+        console.error('Error parsing current user:', error);
+        return null;
+    }
 }
 
-<<<<<<< HEAD
-function logoutUser() {
-    console.log('Logging out user...');
-    localStorage.removeItem('currentUser');
-=======
 function getCurrentUserType() {
     const user = getCurrentUser();
     if (!user) return null;
@@ -563,12 +506,11 @@ function getCurrentUserType() {
 
 function logoutUser() {
     console.log('Logging out user...');
-    localStorage.removeItem('currentUser');
     
-    // Clear any session storage as well
+    // Clear all user data
+    localStorage.removeItem('currentUser');
     sessionStorage.clear();
     
->>>>>>> b38bb18 (UPDATED)
     console.log('User logged out, redirecting to login...');
     window.location.href = '/Common frontend HTML/login.html';
 }
@@ -579,8 +521,6 @@ function checkAuthentication() {
         window.location.href = '/Common frontend HTML/login.html';
         return false;
     }
-<<<<<<< HEAD
-=======
     
     // Check if session is expired (24 hours)
     const currentUser = getCurrentUser();
@@ -596,15 +536,11 @@ function checkAuthentication() {
         }
     }
     
->>>>>>> b38bb18 (UPDATED)
     return true;
 }
 
 // Global logout function that can be called from anywhere
 function logout() {
-<<<<<<< HEAD
-    logoutUser();
-=======
     if (confirm('Are you sure you want to logout?')) {
         logoutUser();
     }
@@ -614,7 +550,7 @@ function logout() {
 function redirectToDashboard() {
     const userType = getCurrentUserType();
     const dashboardUrls = {
-        donor: '/Common frontend HTML/donor-dashboard.html',
+        donor: '/Common frontend HTML/dashboard.html',
         volunteer: '/Common frontend HTML/volunteer-dashboard.html',
         ngo: '/Common frontend HTML/ngo-dashboard.html'
     };
@@ -623,48 +559,17 @@ function redirectToDashboard() {
     window.location.href = redirectUrl;
 }
 
-// Function to get user display info
-function getUserDisplayInfo() {
-    const user = getCurrentUser();
-    if (!user) return null;
-    
-    return {
-        name: user.name,
-        email: user.email,
-        userType: user.userType,
-        displayType: getUserTypeDisplay(user.userType)
-    };
-}
-
-function getUserTypeDisplay(userType) {
-    const labels = {
-        donor: 'Donor',
-        volunteer: 'Volunteer',
-        ngo: 'NGO'
-    };
-    return labels[userType] || 'User';
->>>>>>> b38bb18 (UPDATED)
-}
-
 // Debug function to check localStorage
 function debugStorage() {
-<<<<<<< HEAD
-    console.log('=== DEBUGGING STORAGE ===');
-    console.log('Registered Users:', localStorage.getItem('registeredUsers'));
-    console.log('Current User:', localStorage.getItem('currentUser'));
-    console.log('All localStorage keys:', Object.keys(localStorage));
-}
-=======
     console.log('=== DEBUGGING LOGIN STORAGE ===');
     console.log('Registered Users:', localStorage.getItem('registeredUsers'));
     console.log('Current User:', localStorage.getItem('currentUser'));
     console.log('All localStorage keys:', Object.keys(localStorage));
-    console.log('Session Storage:', Object.keys(sessionStorage));
     
     const currentUser = getCurrentUser();
     if (currentUser) {
         console.log('Current User Type:', getCurrentUserType());
-        console.log('User Display Info:', getUserDisplayInfo());
+        console.log('Session ID:', currentUser.sessionId);
     }
     console.log('================================');
 }
@@ -684,9 +589,8 @@ window.isLoggedIn = isLoggedIn;
 window.getCurrentUser = getCurrentUser;
 window.getCurrentUserType = getCurrentUserType;
 window.logout = logout;
+window.logoutUser = logoutUser;
 window.debugStorage = debugStorage;
 window.clearAllData = clearAllData;
 window.redirectToDashboard = redirectToDashboard;
-window.getUserDisplayInfo = getUserDisplayInfo;
 window.checkAuthentication = checkAuthentication;
->>>>>>> b38bb18 (UPDATED)

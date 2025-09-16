@@ -1,4 +1,4 @@
-// dashboard-router.js - Centralized dashboard routing and common functionality
+// dashboard-router.js - Fixed and Enhanced Centralized dashboard routing
 
 class DashboardRouter {
     constructor() {
@@ -6,8 +6,8 @@ class DashboardRouter {
         this.userType = null;
         this.dashboardConfig = {
             donor: {
-                url: '/Common frontend HTML/donor-dashboard.html',
-                script: '/Common frontend JS/donor-dashboard.js',
+                url: '/Common frontend HTML/dashboard.html',
+                script: '/Common frontend JS/dashboard.js',
                 features: ['donations', 'statistics', 'profile'],
                 role: 'Donor',
                 dataKey: 'donor_data',
@@ -33,6 +33,7 @@ class DashboardRouter {
                     skills: '',
                     availability: '',
                     preferred_location: '',
+                    specialization: '',
                     status: 'Active',
                     statistics: {
                         hours_volunteered: 0,
@@ -111,33 +112,40 @@ class DashboardRouter {
     // Load user session from localStorage
     loadUserSession() {
         try {
-            this.currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            const userSession = localStorage.getItem('currentUser');
+            if (!userSession || userSession === 'null') {
+                console.log('No user session found');
+                this.currentUser = null;
+                return;
+            }
+
+            this.currentUser = JSON.parse(userSession);
             
             if (this.currentUser) {
                 console.log('User session loaded:', {
                     name: this.currentUser.name,
                     email: this.currentUser.email,
                     userType: this.currentUser.userType,
-                    userId: this.currentUser.user_id
+                    userId: this.currentUser.user_id,
+                    sessionId: this.currentUser.sessionId
                 });
-            } else {
-                console.log('No active user session found');
             }
         } catch (error) {
             console.error('Error loading user session:', error);
             this.currentUser = null;
+            localStorage.removeItem('currentUser');
         }
     }
 
-    // Check if user is authenticated
+    // Check if user is authenticated and session is valid
     checkAuthentication() {
         if (!this.currentUser) {
             console.log('No authenticated user found');
             return false;
         }
         
-        // Validate required fields
-        if (!this.currentUser.user_id || !this.currentUser.email) {
+        // Validate required session fields
+        if (!this.currentUser.user_id || !this.currentUser.email || !this.currentUser.sessionId) {
             console.log('Invalid user session data');
             this.clearSession();
             return false;
@@ -166,7 +174,7 @@ class DashboardRouter {
         return hoursSinceLogin > 24;
     }
 
-    // Determine user type from session
+    // Determine user type from session with enhanced logic
     determineUserType() {
         if (!this.currentUser) {
             this.userType = null;
@@ -174,14 +182,14 @@ class DashboardRouter {
         }
         
         // Priority 1: Check explicit userType field
-        if (this.currentUser.userType) {
+        if (this.currentUser.userType && ['donor', 'volunteer', 'ngo'].includes(this.currentUser.userType)) {
             this.userType = this.currentUser.userType;
         }
-        // Priority 2: Check flags
-        else if (this.currentUser.is_ngo === true) {
+        // Priority 2: Check flags and data presence
+        else if (this.currentUser.is_ngo === true || this.currentUser.registration_number) {
             this.userType = 'ngo';
         }
-        else if (this.currentUser.is_volunteer === true) {
+        else if (this.currentUser.is_volunteer === true || this.currentUser.skills || this.currentUser.availability) {
             this.userType = 'volunteer';
         }
         // Priority 3: Default to donor
@@ -191,19 +199,18 @@ class DashboardRouter {
         
         console.log('User type determined:', this.userType);
         
-        // Update session with determined type
-        this.currentUser.userType = this.userType;
-        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+        // Update session with determined type if it wasn't set
+        if (this.currentUser.userType !== this.userType) {
+            this.currentUser.userType = this.userType;
+            localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+        }
     }
 
     // Validate if user has access to current dashboard
     validateDashboardAccess() {
         const currentPath = window.location.pathname;
-        const expectedDashboard = `${this.userType}-dashboard`;
-        
         console.log('Validating dashboard access:', {
             currentPath,
-            expectedDashboard,
             userType: this.userType
         });
         
@@ -214,14 +221,19 @@ class DashboardRouter {
             return false;
         }
         
-        // Allow access to dashboard.html for generic dashboard
+        // Allow access to generic dashboard.html for donors
         if (currentPath.includes('dashboard.html') && !currentPath.includes('-dashboard.html')) {
-            console.log('Redirecting from generic dashboard to specific dashboard');
-            this.redirectToCorrectDashboard();
-            return false;
+            if (this.userType !== 'donor') {
+                console.log('Non-donor on generic dashboard, redirecting to specific dashboard');
+                this.redirectToCorrectDashboard();
+                return false;
+            }
+            return true;
         }
         
-        // Check if user is on the correct dashboard
+        // Check specific dashboard access
+        const expectedDashboard = this.userType === 'donor' ? 'dashboard.html' : `${this.userType}-dashboard.html`;
+        
         if (!currentPath.includes(expectedDashboard)) {
             console.log('User on wrong dashboard, redirecting to correct dashboard');
             this.redirectToCorrectDashboard();
@@ -233,24 +245,33 @@ class DashboardRouter {
 
     // Ensure user data structure is properly initialized
     ensureUserDataStructure() {
-        const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-        const userIndex = users.findIndex(u => u.user_id === this.currentUser.user_id);
-        
-        if (userIndex === -1) {
-            console.error('User not found in registered users');
-            return;
-        }
-        
-        const config = this.dashboardConfig[this.userType];
-        const dataKey = config.dataKey;
-        
-        // Initialize type-specific data if not exists
-        if (!users[userIndex][dataKey]) {
-            console.log(`Initializing ${dataKey} for user`);
-            users[userIndex][dataKey] = JSON.parse(JSON.stringify(config.defaultData));
-            localStorage.setItem('registeredUsers', JSON.stringify(users));
+        try {
+            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            const userIndex = users.findIndex(u => u.user_id === this.currentUser.user_id);
             
-            console.log(`${dataKey} initialized:`, users[userIndex][dataKey]);
+            if (userIndex === -1) {
+                console.warn('User not found in registered users, but session exists');
+                return;
+            }
+            
+            const config = this.dashboardConfig[this.userType];
+            const dataKey = config.dataKey;
+            
+            // Initialize type-specific data if not exists
+            if (!users[userIndex][dataKey]) {
+                console.log(`Initializing ${dataKey} for user`);
+                users[userIndex][dataKey] = JSON.parse(JSON.stringify(config.defaultData));
+                
+                // Set userType if not set
+                if (!users[userIndex].userType) {
+                    users[userIndex].userType = this.userType;
+                }
+                
+                localStorage.setItem('registeredUsers', JSON.stringify(users));
+                console.log(`${dataKey} initialized successfully`);
+            }
+        } catch (error) {
+            console.error('Error ensuring user data structure:', error);
         }
     }
 
@@ -258,9 +279,10 @@ class DashboardRouter {
     redirectToCorrectDashboard() {
         const config = this.dashboardConfig[this.userType];
         if (config && config.url) {
-            console.log(`Redirecting to ${this.userType} dashboard`);
+            console.log(`Redirecting to ${this.userType} dashboard: ${config.url}`);
             window.location.href = config.url;
         } else {
+            console.error('No dashboard configuration found for user type:', this.userType);
             this.redirectToLogin();
         }
     }
@@ -283,23 +305,33 @@ class DashboardRouter {
         }
     }
 
-    // Clear user session
+    // Clear user session safely
     clearSession() {
-        localStorage.removeItem('currentUser');
-        this.currentUser = null;
-        this.userType = null;
-        console.log('User session cleared');
+        try {
+            localStorage.removeItem('currentUser');
+            sessionStorage.clear();
+            this.currentUser = null;
+            this.userType = null;
+            console.log('User session cleared');
+        } catch (error) {
+            console.error('Error clearing session:', error);
+        }
     }
 
     // Get full user details from storage
     getUserDetails() {
         if (!this.currentUser) return null;
         
-        const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-        return users.find(u => u.user_id === this.currentUser.user_id);
+        try {
+            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            return users.find(u => u.user_id === this.currentUser.user_id);
+        } catch (error) {
+            console.error('Error getting user details:', error);
+            return null;
+        }
     }
 
-    // Update user profile
+    // Update user profile with validation
     updateUserProfile(updates) {
         try {
             const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
@@ -311,9 +343,12 @@ class DashboardRouter {
             
             // Update user data
             Object.assign(users[userIndex], updates);
+            users[userIndex].updated_at = new Date().toISOString();
             
-            // Update current session
-            Object.assign(this.currentUser, updates);
+            // Update current session (exclude sensitive data)
+            const sessionUpdates = { ...updates };
+            delete sessionUpdates.password;
+            Object.assign(this.currentUser, sessionUpdates);
             
             // Save to localStorage
             localStorage.setItem('registeredUsers', JSON.stringify(users));
@@ -347,6 +382,7 @@ class DashboardRouter {
             
             // Update type-specific data
             Object.assign(users[userIndex][dataKey], dataUpdates);
+            users[userIndex][dataKey].updated_at = new Date().toISOString();
             
             // Save to localStorage
             localStorage.setItem('registeredUsers', JSON.stringify(users));
@@ -370,184 +406,16 @@ class DashboardRouter {
         return fullUser[dataKey]?.statistics || config.defaultData.statistics;
     }
 
-    // Add activity/donation/project based on user type
-    addRecord(recordType, recordData) {
-        try {
-            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-            const userIndex = users.findIndex(u => u.user_id === this.currentUser.user_id);
-            
-            if (userIndex === -1) {
-                throw new Error('User not found');
-            }
-            
-            const config = this.dashboardConfig[this.userType];
-            const dataKey = config.dataKey;
-            
-            // Map record types to array keys
-            const recordArrayMap = {
-                donor: { donation: 'donations' },
-                volunteer: { activity: 'activities' },
-                ngo: { 
-                    project: 'projects', 
-                    campaign: 'campaigns', 
-                    opportunity: 'volunteer_opportunities' 
-                }
-            };
-            
-            const arrayKey = recordArrayMap[this.userType]?.[recordType];
-            if (!arrayKey) {
-                throw new Error(`Invalid record type: ${recordType} for user type: ${this.userType}`);
-            }
-            
-            // Ensure data structure exists
-            if (!users[userIndex][dataKey]) {
-                users[userIndex][dataKey] = JSON.parse(JSON.stringify(config.defaultData));
-            }
-            
-            if (!users[userIndex][dataKey][arrayKey]) {
-                users[userIndex][dataKey][arrayKey] = [];
-            }
-            
-            // Add record with metadata
-            const record = {
-                ...recordData,
-                id: `${recordType.toUpperCase()}_${Date.now()}`,
-                created_at: new Date().toISOString(),
-                created_by: this.currentUser.user_id
-            };
-            
-            users[userIndex][dataKey][arrayKey].push(record);
-            
-            // Update statistics if applicable
-            this.updateStatisticsAfterRecord(users[userIndex][dataKey], recordType, recordData);
-            
-            // Save to localStorage
-            localStorage.setItem('registeredUsers', JSON.stringify(users));
-            
-            console.log(`${recordType} record added successfully`);
-            return record;
-        } catch (error) {
-            console.error('Error adding record:', error);
-            return null;
-        }
-    }
-
-    // Update statistics after adding a record
-    updateStatisticsAfterRecord(userData, recordType, recordData) {
-        if (!userData.statistics) {
-            userData.statistics = this.dashboardConfig[this.userType].defaultData.statistics;
-        }
-        
-        const stats = userData.statistics;
-        
-        // Update based on user type and record type
-        if (this.userType === 'donor' && recordType === 'donation') {
-            if (recordData.type === 'blood') {
-                stats.blood_donations += 1;
-                stats.lives_impacted += 3; // Assume 1 blood donation can save 3 lives
-            } else if (recordData.type === 'money') {
-                const amount = parseFloat(recordData.amount) || 0;
-                stats.money_donated += amount;
-                stats.lives_impacted += Math.floor(amount / 1000); // Assume ₹1000 impacts 1 life
-            } else if (recordData.type === 'items') {
-                const items = parseInt(recordData.amount) || 1;
-                stats.items_donated += items;
-                stats.lives_impacted += items;
-            }
-        } else if (this.userType === 'volunteer' && recordType === 'activity') {
-            stats.hours_volunteered += parseFloat(recordData.hours_worked) || 0;
-            stats.events_participated += 1;
-            stats.people_helped += parseInt(recordData.people_helped) || 0;
-        } else if (this.userType === 'ngo' && recordType === 'project') {
-            // Projects don't immediately update statistics
-            // They update when marked as completed
-            console.log('Project added, statistics will update when completed');
-        }
-    }
-
-    // Check if user has specific feature access
-    hasFeature(feature) {
-        const config = this.dashboardConfig[this.userType];
-        return config && config.features.includes(feature);
-    }
-
-    // Get dashboard configuration
-    getDashboardConfig() {
-        return this.dashboardConfig[this.userType];
-    }
-
-    // Get all records for current user
-    getRecords(recordType) {
-        const fullUser = this.getUserDetails();
-        if (!fullUser) return [];
-        
-        const config = this.dashboardConfig[this.userType];
-        const dataKey = config.dataKey;
-        
-        const recordArrayMap = {
-            donor: { donation: 'donations' },
-            volunteer: { activity: 'activities' },
-            ngo: { 
-                project: 'projects', 
-                campaign: 'campaigns', 
-                opportunity: 'volunteer_opportunities' 
-            }
-        };
-        
-        const arrayKey = recordArrayMap[this.userType]?.[recordType];
-        if (!arrayKey) return [];
-        
-        return fullUser[dataKey]?.[arrayKey] || [];
-    }
-
-    // Get user type-specific data
-    getUserTypeData() {
-        const fullUser = this.getUserDetails();
-        if (!fullUser) return null;
-        
-        const config = this.dashboardConfig[this.userType];
-        const dataKey = config.dataKey;
-        
-        return fullUser[dataKey] || null;
-    }
-
-    // Update statistics manually (for admin or bulk operations)
-    updateStatistics(newStats) {
-        try {
-            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-            const userIndex = users.findIndex(u => u.user_id === this.currentUser.user_id);
-            
-            if (userIndex === -1) {
-                throw new Error('User not found');
-            }
-            
-            const config = this.dashboardConfig[this.userType];
-            const dataKey = config.dataKey;
-            
-            // Ensure data structure exists
-            if (!users[userIndex][dataKey]) {
-                users[userIndex][dataKey] = JSON.parse(JSON.stringify(config.defaultData));
-            }
-            
-            // Update statistics
-            Object.assign(users[userIndex][dataKey].statistics, newStats);
-            
-            // Save to localStorage
-            localStorage.setItem('registeredUsers', JSON.stringify(users));
-            
-            console.log('Statistics updated successfully');
-            return true;
-        } catch (error) {
-            console.error('Error updating statistics:', error);
+    // Logout user with confirmation
+    logout(skipConfirmation = false) {
+        if (!skipConfirmation && !confirm('Are you sure you want to logout?')) {
             return false;
         }
-    }
-
-    // Logout user
-    logout() {
+        
         console.log('Logging out user');
         this.clearSession();
         this.redirectToLogin();
+        return true;
     }
 
     // Get user role display name
@@ -561,40 +429,20 @@ class DashboardRouter {
         return this.userType === type;
     }
 
-    // Get available user actions based on type and features
-    getAvailableActions() {
-        const config = this.getDashboardConfig();
-        if (!config) return [];
-        
-        const actionMap = {
-            donor: [
-                'add_donation',
-                'view_statistics',
-                'update_blood_group',
-                'view_donation_history'
-            ],
-            volunteer: [
-                'add_activity',
-                'view_opportunities',
-                'update_skills',
-                'view_activity_history'
-            ],
-            ngo: [
-                'create_project',
-                'create_campaign',
-                'post_opportunity',
-                'view_applications',
-                'generate_report'
-            ]
-        };
-        
-        return actionMap[this.userType] || [];
+    // Get dashboard configuration
+    getDashboardConfig() {
+        return this.dashboardConfig[this.userType];
     }
 
-    // Validate user permissions for specific action
-    canPerformAction(action) {
-        const availableActions = this.getAvailableActions();
-        return availableActions.includes(action);
+    // Get user type-specific data
+    getUserTypeData() {
+        const fullUser = this.getUserDetails();
+        if (!fullUser) return null;
+        
+        const config = this.dashboardConfig[this.userType];
+        const dataKey = config.dataKey;
+        
+        return fullUser[dataKey] || null;
     }
 
     // Debug function
@@ -603,11 +451,8 @@ class DashboardRouter {
         console.log('Current User:', this.currentUser);
         console.log('User Type:', this.userType);
         console.log('Dashboard Config:', this.getDashboardConfig());
-        console.log('Full User Details:', this.getUserDetails());
-        console.log('Statistics:', this.getStatistics());
-        console.log('User Type Data:', this.getUserTypeData());
-        console.log('Available Actions:', this.getAvailableActions());
         console.log('Session Expired:', this.isSessionExpired());
+        console.log('Current Path:', window.location.pathname);
         console.log('==============================');
     }
 }
@@ -617,10 +462,12 @@ window.dashboardRouter = new DashboardRouter();
 
 // Auto-initialize on DOM load if on a dashboard page
 document.addEventListener('DOMContentLoaded', function() {
-    const isDashboardPage = window.location.pathname.includes('-dashboard') || 
-                          window.location.pathname.includes('dashboard.html');
+    const currentPath = window.location.pathname;
+    const isDashboardPage = currentPath.includes('-dashboard') || 
+                          currentPath.includes('dashboard.html');
     
     if (isDashboardPage) {
+        console.log('Dashboard page detected, initializing router...');
         const success = window.dashboardRouter.init();
         
         if (success) {
@@ -646,7 +493,9 @@ window.addEventListener('popstate', function(event) {
                           window.location.pathname.includes('dashboard.html');
     
     if (isDashboardPage && window.dashboardRouter) {
-        window.dashboardRouter.init();
+        setTimeout(() => {
+            window.dashboardRouter.init();
+        }, 100);
     }
 });
 
@@ -656,7 +505,7 @@ document.addEventListener('visibilitychange', function() {
         // Check if session is still valid when user returns to tab
         if (window.dashboardRouter.isSessionExpired()) {
             console.log('Session expired while away, logging out');
-            window.dashboardRouter.logout();
+            window.dashboardRouter.logout(true);
         }
     }
 });
@@ -666,14 +515,27 @@ window.addEventListener('error', function(event) {
     if (event.error && event.error.message && event.error.message.includes('dashboardRouter')) {
         console.error('Dashboard Router Error:', event.error);
         
-        // Try to recover by reinitializing
+        // Try to recover by reinitializing after a delay
         if (window.dashboardRouter) {
             setTimeout(() => {
-                window.dashboardRouter.init();
+                try {
+                    window.dashboardRouter.init();
+                } catch (retryError) {
+                    console.error('Router recovery failed:', retryError);
+                    window.dashboardRouter.redirectToLogin();
+                }
             }, 1000);
         }
     }
 });
+
+// Make router functions globally available
+window.logout = function() {
+    if (window.dashboardRouter) {
+        return window.dashboardRouter.logout();
+    }
+    return false;
+};
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
